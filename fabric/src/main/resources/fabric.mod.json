@@ -1,0 +1,31 @@
+{
+	"schemaVersion": 1,
+	"id": "i4",
+	"version": "$version",
+	"name": "i4",
+	"description": "Data flows through everything.",
+	"authors": [
+		"quaternary"
+	],
+	"contact": {
+		"homepage": "https://highlysuspect.agency/",
+		"sources": "https://github.com/quat1024/i4",
+		"issues": "https://github.com/quat1024/i4/issues"
+	},
+	"license": "LGPL-3.0-or-later",
+	"icon": "i4-icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"agency.highlysuspect.i4.fabric.I4Fabric"
+		]
+	},
+	"mixins": [
+	
+	],
+	"depends": {
+		"minecraft": "=1.21.1",
+		"fabricloader": "*",
+		"fabric-api": "*"
+	}
+}

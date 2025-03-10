@@ -1,0 +1,40 @@
+architectury {
+	compileOnly()
+	common(["fabric", "neoforge"])
+}
+
+//for @Environment annotations - TODO include just the annotations ??
+dependencies {
+	modImplementation "net.fabricmc:fabric-loader:0.16.10"
+}
+
+sourceSets {
+	main
+	generated
+}
+
+//TODO this is probably wrong
+//sourceSets.main.resources.srcDirs += sourceSets.generated.resources.srcDirs
+processResources {
+	from sourceSets.generated.resources
+}
+
+//make a configuration that just has all the resources in it, so i can grab it with shadow from other projects
+//?????
+configurations.create("allMyResources")
+artifacts {
+	allMyResources sourceSets.main.output.resourcesDir
+}
+
+tasks.register("dgen", JavaExec) {
+	group "dgen"
+	
+	classpath = sourceSets.main.runtimeClasspath
+	mainClass = "agency.highlysuspect.i4.dgen.DgenEntrypoint"
+	args = [
+		//arg 0: generated sources dir
+	  sourceSets.generated.getResources().srcDirs.iterator().next().toString(),
+		//arg 1: my own classes dir (used for class discovery bullshit)
+		sourceSets.main.output.classesDirs.iterator().next().toString(),
+	]
+}

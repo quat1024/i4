@@ -1,0 +1,51 @@
+architectury {
+	compileOnly()
+	platformSetupLoomIde()
+	neoForge()
+}
+
+configurations {
+	vanilla {
+		canBeResolved = true
+		canBeConsumed = false
+	}
+	shadowBundle {
+		canBeResolved = true
+		canBeConsumed = false
+	}
+	compileClasspath.extendsFrom vanilla
+	runtimeClasspath.extendsFrom vanilla
+	developmentNeoForge.extendsFrom vanilla
+}
+
+//sigh. what's the right way to get resources in dev
+var shit = tasks.register("shit", Copy) {
+	from "../vanilla/src/main/resources"
+	from "../vanilla/src/generated/resources"
+	into sourceSets.main.output.resourcesDir
+}
+tasks.runClient.dependsOn shit
+
+repositories {
+	maven {
+		name = 'NeoForged'
+		url = 'https://maven.neoforged.net/releases'
+	}
+}
+
+dependencies {
+	neoForge "net.neoforged:neoforge:21.1.84"
+	
+	vanilla(project(path: ':vanilla', configuration: 'namedElements')) { transitive false }
+	shadowBundle project(path: ':vanilla', configuration: 'transformProductionNeoForge')
+	shadowBundle project(path: ':vanilla', configuration: 'allMyResources')
+}
+
+shadowJar {
+	configurations = [project.configurations.shadowBundle]
+	archiveClassifier = 'dev-shadow'
+}
+
+remapJar {
+	inputFile.set shadowJar.archiveFile
+}

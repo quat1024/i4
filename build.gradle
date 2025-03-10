@@ -1,0 +1,65 @@
+plugins {
+	id 'dev.architectury.loom' version '1.7-SNAPSHOT' apply false
+	id 'architectury-plugin' version '3.4-SNAPSHOT'
+	id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
+}
+
+architectury {
+	minecraft = "1.21.1"
+	compileOnly()
+}
+
+allprojects {
+	group = "agency.highlysuspect.i4"
+	version = rootProject.version
+}
+
+subprojects {
+	apply plugin: 'com.github.johnrengelman.shadow'
+	apply plugin: 'dev.architectury.loom'
+	apply plugin: 'architectury-plugin'
+	apply plugin: 'maven-publish'
+	
+	java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+	java.withSourcesJar()
+	java.sourceCompatibility = java.targetCompatibility = JavaVersion.VERSION_21
+	tasks.withType(JavaCompile).configureEach {
+		it.options.encoding = "UTF-8"
+		it.options.release = 21
+	}
+	
+	base {
+		archivesName = "i4-$project.name" //eg. "i4-fabric"
+	}
+	
+	dependencies {
+		minecraft "net.minecraft:minecraft:1.21.1"
+		mappings loom.officialMojangMappings()
+	}
+	
+	processResources {
+		inputs.property 'version', project.version
+		
+		filesMatching(['fabric.mod.json', 'META-INF/neoforge.mods.toml']) {
+			expand version: project.version
+		}
+	}
+	
+	// Configure Maven publishing.
+//	publishing {
+//		publications {
+//			mavenJava(MavenPublication) {
+//				artifactId = base.archivesName.get()
+//				from components.java
+//			}
+//		}
+//
+//		// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+//		repositories {
+//			// Add repositories to publish to here.
+//			// Notice: This block does NOT have the same function as the block in the top level.
+//			// The repositories here will be used for publishing your artifact, not for
+//			// retrieving dependencies.
+//		}
+//	}
+}
