@@ -1,9 +1,9 @@
 package agency.highlysuspect.i4.dgen.gens;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import agency.highlysuspect.i4.I4;
 import agency.highlysuspect.i4.dgen.facets.Lang;
@@ -12,9 +12,9 @@ import agency.highlysuspect.i4.dgen.gen.Gen;
 import agency.highlysuspect.i4.dgen.gen.GenSupport;
 import agency.highlysuspect.i4.dgen.gen.RtContext;
 import agency.highlysuspect.i4.ignos.Id;
-import agency.highlysuspect.i4.ignos.Reg;
+import agency.highlysuspect.i4.ignos.Latch;
+import agency.highlysuspect.i4.ignos.RegType;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -25,16 +25,16 @@ import org.jetbrains.annotations.Nullable;
 public abstract class BlockGen<T extends Block> extends Gen {
 	public BlockGen() {
 		this.id = GenSupport.reflectivelyFindId(this);
-		this.handle = new Reg.UnboundId<>(id, "block");
+		this.block = Latch.open(RegType.BLOCKS, id);
 	}
 
 	public BlockGen(Id id) {
 		this.id = id;
-		this.handle = new Reg.UnboundId<>(id, "block");
+		this.block = Latch.open(RegType.BLOCKS, id);
 	}
 
 	public transient Id id;
-	public Reg.Handle<T> handle;
+	public Latch<T> block;
 
 	@Override
 	public void fanout(Consumer<Gen> fanout) {
@@ -53,11 +53,10 @@ public abstract class BlockGen<T extends Block> extends Gen {
 	@Override
 	public void rt(RtContext rt) {
 		super.rt(rt);
+
 		put(new Register<Block, T>()
-			.id(id)
-			.registry(BuiltInRegistries.BLOCK)
-			.thing(this::constructBlock)
-			.handleCallback(h -> this.handle = h));
+			.latch(block)
+			.thing(this::constructBlock));
 	}
 
 	public abstract T constructBlock();
@@ -74,9 +73,13 @@ public abstract class BlockGen<T extends Block> extends Gen {
 
 	/// while we're here ///
 
-	public <X extends BlockEntity> Register<BlockEntityType<?>, BlockEntityType<X>> blockEntity(RtContext rt, BiFunction<BlockPos, BlockState, X> maker, Supplier<Collection<Reg.Handle<? extends Block>>> blocks) {
+	public <X extends BlockEntity> Register<BlockEntityType<?>, BlockEntityType<X>> blockEntity(RtContext rt, BiFunction<BlockPos, BlockState, X> maker, Collection<Latch<? extends Block>> blocks) {
 		return put(new Register<BlockEntityType<?>, BlockEntityType<X>>())
-			.registry(BuiltInRegistries.BLOCK_ENTITY_TYPE)
-			.thing(() -> rt.makeBlockEntityType(maker, blocks.get().stream().map(Supplier::get).toArray(Block[]::new)));
+			.thing(() -> rt.makeBlockEntityType(maker, blocks.stream().map(Latch::get).toArray(Block[]::new)));
+	}
+
+	@SafeVarargs
+	public final <X extends BlockEntity> Register<BlockEntityType<?>, BlockEntityType<X>> blockEntity(RtContext rt, BiFunction<BlockPos, BlockState, X> maker, Latch<? extends Block>... blocks) {
+		return blockEntity(rt, maker, List.of(blocks));
 	}
 }

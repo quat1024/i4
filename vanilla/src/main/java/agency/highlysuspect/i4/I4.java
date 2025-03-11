@@ -11,8 +11,9 @@ import agency.highlysuspect.i4.dgen.gen.Gen;
 import agency.highlysuspect.i4.dgen.gen.GenFinder;
 import agency.highlysuspect.i4.dgen.gen.RtContext;
 import agency.highlysuspect.i4.ignos.Id;
+import agency.highlysuspect.i4.ignos.Latch;
 import agency.highlysuspect.i4.ignos.Reg;
-import net.minecraft.core.Registry;
+import agency.highlysuspect.i4.ignos.RegType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,7 @@ public abstract class I4 implements RtContext {
 
 	public static I4 INSTANCE;
 
-	protected Map<Registry<?>, Reg<?>> defers = new HashMap<>();
+	protected Map<RegType<?>, Reg<?>> defers = new HashMap<>();
 
 	public I4() {
 		INSTANCE = this;
@@ -49,10 +50,10 @@ public abstract class I4 implements RtContext {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T, X extends T> Reg.Handle<X> register(Registry<T> registry, Id id, Supplier<X> s) {
-		Reg<T> reg = (Reg<T>) defers.computeIfAbsent(registry, __ -> createReg(this, registry));
-		return reg.reg(id, s);
+	public <T, X extends T> Latch<X> register(Latch<X> latch, Supplier<X> s) {
+		Reg<T> reg = (Reg<T>) defers.computeIfAbsent(latch.regType, __ -> createReg(this, latch.regType));
+		return reg.defer(latch, s);
 	}
 
-	public abstract <T> Reg<T> createReg(I4 i4, Registry<T> registry);
+	public abstract <T> Reg<T> createReg(I4 i4, RegType<T> regType);
 }

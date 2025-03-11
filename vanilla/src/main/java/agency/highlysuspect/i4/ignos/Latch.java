@@ -1,0 +1,56 @@
+package agency.highlysuspect.i4.ignos;
+
+import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+public class Latch<T> {
+	private Latch(RegType<? super T> regType, Id id, @Nullable T thing) {
+		this.regType = regType;
+		this.id = id;
+		this.thing = thing;
+	}
+
+	public static <T> Latch<T> open(RegType<? super T> regType, Id id) {
+		Preconditions.checkNotNull(regType, "regtype is null");
+		Preconditions.checkNotNull(id, "id is null");
+
+		return new Latch<>(regType, id, null);
+	}
+
+	public static <T> Latch<T> shut(RegType<? super T> regType, Id id, @NotNull T thing) {
+		Preconditions.checkNotNull(regType, "regtype is null");
+		Preconditions.checkNotNull(id, "id is null");
+		Preconditions.checkNotNull(thing, "can't construct shut latch for %s with null object", id);
+		return new Latch<>(regType, id, thing);
+	}
+
+	public final RegType<? super T> regType;
+	public final Id id;
+	private @Nullable T thing;
+
+	public T get() {
+		if(thing == null) throw new IllegalStateException("tried to read from open latch " + this);
+		return thing;
+	}
+
+	public void shut(T registered) {
+		if(thing != null) throw new IllegalStateException("already shut latch " + this);
+		if(registered == null) throw new IllegalArgumentException("tried to shut latch with null " + this);
+
+		thing = registered;
+	}
+
+	public boolean isOpen() {
+		return thing == null;
+	}
+
+	public boolean isShut() {
+		return thing != null;
+	}
+
+	@Override
+	public String toString() {
+		return regType.toString() + "->" + id + " " + (thing == null ? "(unbound)" : thing);
+	}
+}

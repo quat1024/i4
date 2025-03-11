@@ -25,6 +25,6 @@ public class BlockItemGen<B extends Block, I extends BlockItem> extends ItemGen<
 	public I constructItem() {
 		//this is an unsound cast tbh tbh, but it works as a default implementation
 		//like "new BlockItemGen<>(something)" will work okay
-		return (I) new BlockItem(block.handle.get(), new Item.Properties());
+		return (I) new BlockItem(block.block.get(), new Item.Properties());
 	}
 }

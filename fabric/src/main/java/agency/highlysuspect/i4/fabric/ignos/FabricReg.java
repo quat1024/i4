@@ -1,12 +1,12 @@
 package agency.highlysuspect.i4.fabric.ignos;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import agency.highlysuspect.i4.I4;
 import agency.highlysuspect.i4.ignos.Id;
+import agency.highlysuspect.i4.ignos.Latch;
 import agency.highlysuspect.i4.ignos.Reg;
 import net.minecraft.core.Registry;
 
@@ -15,44 +15,25 @@ public class FabricReg<T> extends Reg<T> {
 		super(i4, registry);
 	}
 
-	private final List<FabricHandle<? extends T>> handles = new ArrayList<>();
+	private final Map<Id, Supplier<? extends T>> creators = new HashMap<>();
 
 	@Override
-	public <X extends T> Handle<X> reg(Id id, Supplier<X> sup) {
-		FabricHandle<X> handle = new FabricHandle<>(id, sup);
-		handles.add(handle);
-		return handle;
-	}
-
-	public void forEach(Consumer<FabricHandle<? extends T>> op) {
-		handles.forEach(op);
-	}
-
-	public class FabricHandle<X extends T> implements Reg.Handle<X> {
-		public FabricHandle(Id id, Supplier<X> supp) {
-			this.id = id;
-			this.supp = supp;
+	public <X extends T> Latch<X> defer(Latch<X> latch, Supplier<X> creator) {
+		if(latch.isShut()) {
+			throw new IllegalStateException("Can't register already-shut latch " + latch);
+		} else if(creators.containsKey(latch.id)) {
+			throw new IllegalStateException("Duplicate registration of " + latch);
+		} else {
+			creators.put(latch.id, creator);
 		}
+		return addLatch(latch);
+	}
 
-		private final Id id;
-		private X thing;
-		private Supplier<X> supp;
-
-		public void doRegister() {
-			thing = supp.get();
-			supp = null;
+	public void registerAll() {
+		creators.forEach((id, creator) -> {
+			T thing = creator.get();
 			Registry.register(registry, id.toMinecraft(), thing);
-		}
-
-		@Override
-		public Id getId() {
-			return id;
-		}
-
-		@Override
-		public X get() {
-			if(thing == null) throw new RuntimeException("Can't access " + id + " before it's registered");
-			return thing;
-		}
+			shutLatches(id, thing);
+		});
 	}
 }

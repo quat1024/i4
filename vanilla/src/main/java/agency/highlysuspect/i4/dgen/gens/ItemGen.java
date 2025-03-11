@@ -8,31 +8,29 @@ import agency.highlysuspect.i4.dgen.gen.Gen;
 import agency.highlysuspect.i4.dgen.gen.GenSupport;
 import agency.highlysuspect.i4.dgen.gen.RtContext;
 import agency.highlysuspect.i4.ignos.Id;
-import agency.highlysuspect.i4.ignos.Reg;
-import net.minecraft.core.registries.BuiltInRegistries;
+import agency.highlysuspect.i4.ignos.Latch;
+import agency.highlysuspect.i4.ignos.RegType;
 import net.minecraft.world.item.Item;
 
 public abstract class ItemGen<T extends Item> extends Gen {
 	public ItemGen() {
 		this.id = GenSupport.reflectivelyFindId(this);
-		this.handle = new Reg.UnboundId<>(id, "item");
+		this.itemLatch = Latch.open(RegType.ITEMS, id);
 	}
 
 	public ItemGen(Id id) {
 		this.id = id;
-		this.handle = new Reg.UnboundId<>(id, "item");
+		this.itemLatch = Latch.open(RegType.ITEMS, id);
 	}
 
 	public transient Id id;
-	public Reg.Handle<T> handle;
+	public Latch<T> itemLatch;
 
 	@Override
 	public void rt(RtContext rt) {
 		put(new Register<Item, T>()
-			.id(id)
-			.registry(BuiltInRegistries.ITEM)
-			.thing(this::constructItem)
-			.handleCallback(h -> this.handle = h));
+			.latch(itemLatch))
+			.thing(this::constructItem);
 	}
 
 	public abstract T constructItem();

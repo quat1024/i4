@@ -1,12 +1,11 @@
 package agency.highlysuspect.i4.content;
 
-import java.util.List;
-
 import agency.highlysuspect.i4.dgen.gen.FindGen;
 import agency.highlysuspect.i4.dgen.gen.GenContext;
 import agency.highlysuspect.i4.dgen.gen.RtContext;
 import agency.highlysuspect.i4.dgen.gens.BlockGen;
-import agency.highlysuspect.i4.ignos.Reg;
+import agency.highlysuspect.i4.ignos.Latch;
+import agency.highlysuspect.i4.ignos.RegType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -43,7 +42,7 @@ public class LogisticCore extends Block implements EntityBlock {
 		public static final Gen INSTANCE = new Gen();
 		public static final String ID = "i4:logistic_core";
 
-		public Reg.Handle<BlockEntityType<Ent>> beType;
+		public Latch<BlockEntityType<Ent>> beType = Latch.open(RegType.BLOCK_ENTITY_TYPES, id);
 
 		public void gen(GenContext ctx) {
 			super.gen(ctx);
@@ -53,9 +52,7 @@ public class LogisticCore extends Block implements EntityBlock {
 		public void rt(RtContext ctx) {
 			super.rt(ctx);
 
-			blockEntity(ctx, Ent::new, () -> List.of(handle))
-				.id(id)
-				.handleCallback(h -> beType = h);
+			blockEntity(ctx, Ent::new, block).latch(beType);
 		}
 
 		@Override
