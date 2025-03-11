@@ -20,10 +20,10 @@ public abstract class Reg<T> {
 		Id getId();
 	}
 
-	public record UnboundId<T>(Id getId) implements Handle<T> {
+	public record UnboundId<T>(Id getId, String type) implements Handle<T> {
 		@Override
 		public T get() {
-			throw new IllegalStateException("Unbound handle for " + getId());
+			throw new IllegalStateException("Unbound handle for " + type + " " + getId());
 		}
 	}
 }

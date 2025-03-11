@@ -15,12 +15,12 @@ import net.minecraft.world.item.Item;
 public abstract class ItemGen<T extends Item> extends Gen {
 	public ItemGen() {
 		this.id = GenSupport.reflectivelyFindId(this);
-		this.handle = new Reg.UnboundId<>(id);
+		this.handle = new Reg.UnboundId<>(id, "item");
 	}
 
 	public ItemGen(Id id) {
 		this.id = id;
-		this.handle = new Reg.UnboundId<>(id);
+		this.handle = new Reg.UnboundId<>(id, "item");
 	}
 
 	public transient Id id;

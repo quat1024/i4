@@ -17,8 +17,8 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public class LogisticCore extends Block implements EntityBlock {
-	public LogisticCore(Properties properties) {
+public class LogisticCaller extends Block implements EntityBlock {
+	public LogisticCaller(Properties properties) {
 		super(properties);
 	}
 
@@ -29,8 +29,8 @@ public class LogisticCore extends Block implements EntityBlock {
 	}
 
 	public static class Ent extends BlockEntity {
-		public Ent(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-			super(type, pos, state);
+		public Ent(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state) {
+			super(blockEntityType, pos, state);
 		}
 
 		public Ent(BlockPos pos, BlockState state) {
@@ -39,28 +39,30 @@ public class LogisticCore extends Block implements EntityBlock {
 	}
 
 	@FindGen
-	public static class Gen extends BlockGen<LogisticCore> {
+	public static class Gen extends BlockGen<LogisticCaller> {
 		public static final Gen INSTANCE = new Gen();
-		public static final String ID = "i4:logistic_core";
+		public static final String ID = "i4:logistic_caller";
 
 		public Reg.Handle<BlockEntityType<Ent>> beType;
 
+		@Override
 		public void gen(GenContext ctx) {
 			super.gen(ctx);
-			enUs("Logistic Core");
+			enUs("Logistic Caller");
 		}
 
-		public void rt(RtContext ctx) {
-			super.rt(ctx);
+		@Override
+		public void rt(RtContext rt) {
+			super.rt(rt);
 
-			blockEntity(ctx, Ent::new, () -> List.of(handle))
+			blockEntity(rt, Ent::new, () -> List.of(handle))
 				.id(id)
 				.handleCallback(h -> beType = h);
 		}
 
 		@Override
-		public LogisticCore constructBlock() {
-			return new LogisticCore(BlockBehaviour.Properties.ofFullCopy(Blocks.STONE));
+		public LogisticCaller constructBlock() {
+			return new LogisticCaller(BlockBehaviour.Properties.ofFullCopy(Blocks.STONE));
 		}
 	}
 }

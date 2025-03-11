@@ -6,7 +6,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
-public class BlockItemGen<B extends Block> extends ItemGen<BlockItem> {
+public class BlockItemGen<B extends Block, I extends BlockItem> extends ItemGen<I> {
 	public BlockItemGen(BlockGen<B> block) {
 		super(block.id);
 		this.block = block;
@@ -20,8 +20,11 @@ public class BlockItemGen<B extends Block> extends ItemGen<BlockItem> {
 		put(new ItemModel.Plain()).id(id).parent(block.id.prefixPath("block/"));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public BlockItem constructItem() {
-		return new BlockItem(block.handle.get(), new Item.Properties());
+	public I constructItem() {
+		//this is an unsound cast tbh tbh, but it works as a default implementation
+		//like "new BlockItemGen<>(something)" will work okay
+		return (I) new BlockItem(block.handle.get(), new Item.Properties());
 	}
 }

@@ -62,7 +62,7 @@ public abstract class GenFinder {
 					.map(this::classNameIfHasFindGen)
 					.filter(Objects::nonNull)
 					.map(this::loadAndConstruct)
-					.toList() //buffer the list in-memory cause it uses paths :/
+					.toList() //buffer the list in-memory before we close the paths :/
 					.stream();
 			} catch (Exception e) {
 				throw new RuntimeException("Failed to read gens from classpath", e);

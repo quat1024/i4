@@ -10,7 +10,7 @@ public class Wand extends Item {
 		super(properties);
 	}
 
-	// ...item shit goes here... //
+
 
 	@FindGen
 	public static class Gen extends ItemGen<Wand> {
@@ -18,7 +18,7 @@ public class Wand extends Item {
 
 		public void gen(GenContext ctx) {
 			super.gen(ctx);
-			enUs("Magic Wand");
+			enUs("Entwining Wand");
 			itemGenerated();
 		}
 
