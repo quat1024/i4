@@ -13,7 +13,7 @@ public class I4NF extends I4 {
 	public I4NF() {
 		LOADER_INST = this;
 		LOG.info("Hello from I4NF");
-		bootGame();
+		handleGens();
 	}
 
 	@Override

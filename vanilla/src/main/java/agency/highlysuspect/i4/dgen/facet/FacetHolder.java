@@ -17,23 +17,40 @@ public class FacetHolder {
 		return putUnchecked(key, facet);
 	}
 
-	public <T> List<? extends T> get(Class<T> key) {
+	public void putAll(Object... facets) {
+		for(Object facet : facets) if(facet != null) put(facet);
+	}
+
+	public <T> void delete(T facet) {
+		Class<?> key = facetKey(facet.getClass());
+		if(key == null) throw new IllegalArgumentException("No @Facet in inheritance chain: " + facet.getClass().getName());
+		List<?> list = facets.get(key);
+		if(list != null) list.remove(facet);
+	}
+
+	public <T> List<? extends T> getAll(Class<T> key) {
 		if(key != facetKey(key)) throw new IllegalArgumentException("Not a @Facet class: " + key.getName());
 		List<? extends T> list = (List<? extends T>) facets.get(key);
 		return list == null ? List.of() : list;
 	}
 
 	public <T> void forEach(Class<T> key, Consumer<? super T> action) {
-		get(key).forEach(action);
+		getAll(key).forEach(action);
 	}
 
-	public FacetHolder addAll(FacetHolder other) {
+	public <T> T getOne(Class<T> key) {
+		List<? extends T> list = getAll(key);
+		if(list.size() == 1) return list.getFirst();
+		else throw new IllegalStateException("getOne failed for " + key + "; there are " + list.size() + " facets of this type");
+	}
+
+	public FacetHolder merge(FacetHolder other) {
 		other.facets.forEach((key, theirFacets) -> theirFacets.forEach(theirFacet -> putUnchecked(key, theirFacet)));
 		return this;
 	}
 
-	public FacetHolder addAll(Collection<? extends FacetHolder> others) {
-		others.forEach(this::addAll);
+	public FacetHolder merge(Collection<? extends FacetHolder> others) {
+		others.forEach(this::merge);
 		return this;
 	}
 

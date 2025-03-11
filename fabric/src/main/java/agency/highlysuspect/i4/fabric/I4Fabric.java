@@ -24,7 +24,7 @@ public class I4Fabric extends I4 implements ModInitializer {
 		LOADER_INST = this;
 		LOG.info("Hello from i4Fabric");
 
-		bootGame();
+		handleGens();
 
 		//register the blocks, then the items, then everything else
 		FabricReg<Block> block = (FabricReg<Block>) defers.get(BuiltInRegistries.BLOCK);
@@ -35,7 +35,8 @@ public class I4Fabric extends I4 implements ModInitializer {
 			if(k == BuiltInRegistries.BLOCK || k == BuiltInRegistries.ITEM) return;
 			((FabricReg<?>) r).forEach(FabricReg.FabricHandle::doRegister);
 		});
-		defers.clear(); //not needed anymore
+
+		defers = null; //not needed anymore
 	}
 
 	@Override

@@ -22,7 +22,7 @@ public abstract class I4 implements RtContext {
 
 	public static I4 INSTANCE;
 
-	protected final Map<Registry<?>, Reg<?>> defers = new HashMap<>();
+	protected Map<Registry<?>, Reg<?>> defers = new HashMap<>();
 
 	public I4() {
 		INSTANCE = this;
@@ -33,17 +33,17 @@ public abstract class I4 implements RtContext {
 		return new Id(MODID, path);
 	}
 
-	public void bootGame() {
+	public void handleGens() {
 		//find gens
 		GenFinder finder = new GenFinder.ServiceLoaderFinder();
 		Collection<Gen> gens = finder.findGens();
 		LOG.info("Found {} gens", gens.size());
 
 		//invoke gens
-		for(Gen gen : gens) gen.invokeRtActions(this);
-		FacetHolder allFacets = new FacetHolder().addAll(gens);
+		for(Gen gen : gens) gen.rt(this);
+		FacetHolder allFacets = new FacetHolder().merge(gens);
 
-		//handle facets //TODO im not actually using Register facet
+		//handle facets
 		Register.handle(allFacets, this);
 	}
 

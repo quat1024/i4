@@ -2,7 +2,9 @@ package agency.highlysuspect.i4.dgen.gen;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.stream.Stream;
@@ -18,7 +20,20 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 public abstract class GenFinder {
-	public abstract Collection<Gen> findGens();
+	public Collection<Gen> findGens() {
+		return findGensInternal()
+			.flatMap(gen -> {
+				List<Gen> fanout = new ArrayList<>(2);
+				gen.fanout(g -> {
+					g.toplevel = false;
+					fanout.add(g);
+				});
+				gen.toplevel = true; //incase fanout(this) is called
+				return fanout.stream();
+			}).toList();
+	}
+
+	public abstract Stream<Gen> findGensInternal();
 
 	/**
 	 * @see agency.highlysuspect.i4.dgen.facets.AddServiceLoader
@@ -26,8 +41,9 @@ public abstract class GenFinder {
 	 */
 	public static class ServiceLoaderFinder extends GenFinder {
 		@Override
-		public Collection<Gen> findGens() {
-			return ServiceLoader.load(Gen.class).stream().map(ServiceLoader.Provider::get).toList();
+		public Stream<Gen> findGensInternal() {
+			return ServiceLoader.load(Gen.class).stream()
+				.map(prov -> GenSupport.makeAndSetInstance(prov.type()));
 		}
 	}
 
@@ -39,14 +55,15 @@ public abstract class GenFinder {
 		private final Path base;
 
 		@Override
-		public Collection<Gen> findGens() {
+		public Stream<Gen> findGensInternal() {
 			try(Stream<Path> paths = Files.walk(base)) {
 				return paths
 					.filter(p -> p.getFileName().toString().endsWith(".class"))
 					.map(this::classNameIfHasFindGen)
 					.filter(Objects::nonNull)
 					.map(this::loadAndConstruct)
-					.toList();
+					.toList() //buffer the list in-memory cause it uses paths :/
+					.stream();
 			} catch (Exception e) {
 				throw new RuntimeException("Failed to read gens from classpath", e);
 			}
@@ -68,11 +85,15 @@ public abstract class GenFinder {
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		private @NotNull Gen loadAndConstruct(String className) {
 			try {
-				Object foo = Class.forName(className).getConstructor().newInstance();
-				if(foo instanceof Gen g) return g;
-				else throw new RuntimeException("class " + className + " not an instance of Gen");
+				Class<?> clazz = Class.forName(className);
+				if(Gen.class.isAssignableFrom(clazz)) {
+					return GenSupport.makeAndSetInstance((Class<? extends Gen>) clazz);
+				} else {
+					throw new RuntimeException("class " + className + " not an instance of Gen");
+				}
 			} catch (Exception e) {
 				throw new RuntimeException("failed to load class " + className, e);
 			}

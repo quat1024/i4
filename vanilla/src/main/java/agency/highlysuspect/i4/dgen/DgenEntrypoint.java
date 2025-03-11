@@ -47,8 +47,8 @@ public class DgenEntrypoint implements GenContext {
 
 	public void go() throws Exception {
 		//invoke gens
-		for(Gen gen : gens) gen.invokeGenActions(this);
-		FacetHolder everyFacet = new FacetHolder().addAll(gens);
+		for(Gen gen : gens) gen.gen(this);
+		FacetHolder everyFacet = new FacetHolder().merge(gens);
 
 		//handle facets
 		ItemModel.handle(everyFacet, this);
@@ -68,12 +68,16 @@ public class DgenEntrypoint implements GenContext {
 		Path dest = vanillaGeneratedResourcesDir.resolve(subpath);
 		try {
 			if(Files.notExists(dest)) {
+				LOG.info(" FRESH {}", dest);
 				Files.createDirectories(dest.getParent());
 				Files.writeString(dest, toWrite, StandardCharsets.UTF_8);
 			} else {
 				String existing = Files.readString(dest);
 				if(!toWrite.equals(existing)) {
+					LOG.info("CHANGE {}", dest);
 					Files.writeString(dest, toWrite, StandardCharsets.UTF_8);
+				} else {
+					LOG.info("  SAME {}", dest);
 				}
 			}
 		} catch (Exception e) {

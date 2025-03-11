@@ -19,4 +19,11 @@ public abstract class Reg<T> {
 	public interface Handle<T> extends Supplier<T> {
 		Id getId();
 	}
+
+	public record UnboundId<T>(Id getId) implements Handle<T> {
+		@Override
+		public T get() {
+			throw new IllegalStateException("Unbound handle for " + getId());
+		}
+	}
 }

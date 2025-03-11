@@ -32,27 +32,31 @@ public class LogisticCore extends Block implements EntityBlock {
 		}
 
 		public Ent(BlockPos pos, BlockState state) {
-			super(Gen.beType.get(), pos, state);
+			super(Gen.INSTANCE.beType.get(), pos, state);
 		}
 	}
 
 	@FindGen
-	public static class Gen extends BlockGen {
+	public static class Gen extends BlockGen<LogisticCore> {
+		public static final Gen INSTANCE = new Gen();
 		public static final String ID = "i4:logistic_core";
 
-		public static Reg.Handle<LogisticCore> block;
-		public static Reg.Handle<BlockEntityType<Ent>> beType;
+		public Reg.Handle<BlockEntityType<Ent>> beType;
 
 		public void gen(GenContext ctx) {
+			super.gen(ctx);
 			enUs("Logistic Core");
 		}
 
 		public void rt(RtContext ctx) {
-			block = regBlock(ctx, () -> new LogisticCore(BlockBehaviour.Properties.of()));
-			regBlockItem(ctx, block);
+			super.rt(ctx);
 
-			//hmm hmm not that good
-			beType = ctx.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, blockId, () -> ctx.makeBlockEntityType(Ent::new, block.get()));
+			beType = ctx.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, id, () -> ctx.makeBlockEntityType(Ent::new, handle.get()));
+		}
+
+		@Override
+		public LogisticCore constructBlock() {
+			return new LogisticCore(BlockBehaviour.Properties.of());
 		}
 	}
 }
