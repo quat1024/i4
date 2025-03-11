@@ -22,7 +22,7 @@ public abstract class I4 implements RtContext {
 
 	public static I4 INSTANCE;
 
-	private Map<Registry<?>, Reg<?>> deferreds = new HashMap<>();
+	protected final Map<Registry<?>, Reg<?>> defers = new HashMap<>();
 
 	public I4() {
 		INSTANCE = this;
@@ -34,21 +34,23 @@ public abstract class I4 implements RtContext {
 	}
 
 	public void bootGame() {
+		//find gens
 		GenFinder finder = new GenFinder.ServiceLoaderFinder();
 		Collection<Gen> gens = finder.findGens();
 		LOG.info("Found {} gens", gens.size());
 
+		//invoke gens
 		for(Gen gen : gens) gen.invokeRtActions(this);
 		FacetHolder allFacets = new FacetHolder().addAll(gens);
 
-		//handle facets
+		//handle facets //TODO im not actually using Register facet
 		Register.handle(allFacets, this);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T, X extends T> Reg.Handle<X> register(Registry<T> registry, Id id, Supplier<X> s) {
-		Reg<T> reg = (Reg<T>) deferreds.computeIfAbsent(registry, __ -> createReg(this, registry));
+		Reg<T> reg = (Reg<T>) defers.computeIfAbsent(registry, __ -> createReg(this, registry));
 		return reg.reg(id, s);
 	}
 

@@ -11,9 +11,9 @@ import com.google.gson.JsonObject;
 public abstract class ItemModel<D> extends Idable<D> implements WriteTo<JsonObject> {
 	public Id parent;
 
-	public ItemModel<D> parent(Id parent) {
+	public D parent(Id parent) {
 		this.parent = parent;
-		return this;
+		return downcast();
 	}
 
 	@Override
@@ -22,6 +22,10 @@ public abstract class ItemModel<D> extends Idable<D> implements WriteTo<JsonObje
 		obj.addProperty("parent", parent.toStringOmitMc());
 		return obj;
 	}
+
+	//purely to tie the generics knot
+	//TODO my generics suck shit
+	public static class Plain extends ItemModel<Plain> {}
 
 	public static class ItemGenerated extends ItemModel<ItemGenerated> {
 		public ItemGenerated() {

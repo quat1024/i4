@@ -35,7 +35,7 @@ public class DgenEntrypoint implements GenContext {
 		this.vanillaGeneratedResourcesDir = Paths.get(args[0]);
 		this.selfScanDir = Paths.get(args[1]);
 
-		//find classes that extend Gen
+		//find gens
 		LOG.info("Selfscanning from {}", selfScanDir);
 		GenFinder finder = new GenFinder.ClassFileFinder(selfScanDir);
 //		GenFinder finder = new GenFinder.ServiceLoaderFinder();
@@ -46,7 +46,7 @@ public class DgenEntrypoint implements GenContext {
 	}
 
 	public void go() throws Exception {
-		//call gens, collect facets
+		//invoke gens
 		for(Gen gen : gens) gen.invokeGenActions(this);
 		FacetHolder everyFacet = new FacetHolder().addAll(gens);
 
