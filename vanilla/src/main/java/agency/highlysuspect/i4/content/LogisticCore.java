@@ -4,8 +4,6 @@ import agency.highlysuspect.i4.dgen.gen.FindGen;
 import agency.highlysuspect.i4.dgen.gen.GenContext;
 import agency.highlysuspect.i4.dgen.gen.RtContext;
 import agency.highlysuspect.i4.dgen.gens.BlockGen;
-import agency.highlysuspect.i4.ignos.Latch;
-import agency.highlysuspect.i4.ignos.RegType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -33,16 +31,15 @@ public class LogisticCore extends Block implements EntityBlock {
 		}
 
 		public Ent(BlockPos pos, BlockState state) {
-			super(Gen.INSTANCE.beType.get(), pos, state);
+			super(Latches.LOGISTIC_CORE_BE.get(), pos, state);
 		}
 	}
 
 	@FindGen
 	public static class Gen extends BlockGen<LogisticCore> {
-		public static final Gen INSTANCE = new Gen();
-		public static final String ID = "i4:logistic_core";
-
-		public Latch<BlockEntityType<Ent>> beType = Latch.open(RegType.BLOCK_ENTITY_TYPES, id);
+		public Gen() {
+			super(Latches.LOGISTIC_CORE);
+		}
 
 		public void gen(GenContext ctx) {
 			super.gen(ctx);
@@ -51,8 +48,7 @@ public class LogisticCore extends Block implements EntityBlock {
 
 		public void rt(RtContext ctx) {
 			super.rt(ctx);
-
-			blockEntity(ctx, Ent::new, block).latch(beType);
+			blockEntity(Latches.LOGISTIC_CORE_BE).factory(Ent::new);
 		}
 
 		@Override

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import agency.highlysuspect.i4.dgen.facet.FacetHolder;
+import agency.highlysuspect.i4.dgen.facets.AddBlockEntity;
 import agency.highlysuspect.i4.dgen.facets.Register;
 import agency.highlysuspect.i4.dgen.gen.Gen;
 import agency.highlysuspect.i4.dgen.gen.GenFinder;
@@ -42,10 +43,11 @@ public abstract class I4 implements RtContext {
 
 		//invoke gens
 		for(Gen gen : gens) gen.rt(this);
-		FacetHolder allFacets = new FacetHolder().merge(gens);
+		FacetHolder everyFacet = new FacetHolder().merge(gens);
 
 		//handle facets
-		Register.handle(allFacets, this);
+		AddBlockEntity.handle(everyFacet, this); //has to come before Register.handle
+		Register.handle(everyFacet, this);
 	}
 
 	@SuppressWarnings("unchecked")

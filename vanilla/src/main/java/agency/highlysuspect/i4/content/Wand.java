@@ -10,11 +10,13 @@ public class Wand extends Item {
 		super(properties);
 	}
 
-
+	//blah blah
 
 	@FindGen
 	public static class Gen extends ItemGen<Wand> {
-		public static final String ID = "i4:wand";
+		public Gen() {
+			super(Latches.WAND);
+		}
 
 		public void gen(GenContext ctx) {
 			super.gen(ctx);

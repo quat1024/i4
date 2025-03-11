@@ -3,6 +3,9 @@ package agency.highlysuspect.i4.dgen.facets;
 import agency.highlysuspect.i4.dgen.facet.Downcastable;
 import agency.highlysuspect.i4.ignos.Id;
 
+/**
+ * TODO: make this Latchable instead
+ */
 public class Idable<D> implements Downcastable<D> {
 	public Id id;
 

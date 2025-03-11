@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.Block;
 
 public class BlockItemGen<B extends Block, I extends BlockItem> extends ItemGen<I> {
 	public BlockItemGen(BlockGen<B> block) {
-		super(block.id);
+		super(block.blockLatch.id);
 		this.block = block;
 	}
 
@@ -17,7 +17,7 @@ public class BlockItemGen<B extends Block, I extends BlockItem> extends ItemGen<
 	@Override
 	public void gen(GenContext ctx) {
 		super.gen(ctx);
-		put(new ItemModel.Plain()).id(id).parent(block.id.prefixPath("block/"));
+		put(new ItemModel.Plain()).id(itemLatch.id).parent(block.blockLatch.id.prefixPath("block/"));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -25,6 +25,6 @@ public class BlockItemGen<B extends Block, I extends BlockItem> extends ItemGen<
 	public I constructItem() {
 		//this is an unsound cast tbh tbh, but it works as a default implementation
 		//like "new BlockItemGen<>(something)" will work okay
-		return (I) new BlockItem(block.block.get(), new Item.Properties());
+		return (I) new BlockItem(block.blockLatch.get(), new Item.Properties());
 	}
 }

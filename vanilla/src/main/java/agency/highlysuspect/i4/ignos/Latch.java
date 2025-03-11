@@ -53,4 +53,18 @@ public class Latch<T> {
 	public String toString() {
 		return regType.toString() + "->" + id + " " + (thing == null ? "(unbound)" : thing);
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if(this == o) return true;
+		if(o == null || getClass() != o.getClass()) return false;
+
+		Latch<?> latch = (Latch<?>) o;
+		return regType.equals(latch.regType) && id.equals(latch.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return 31 * regType.hashCode() + id.hashCode();
+	}
 }

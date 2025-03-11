@@ -5,6 +5,8 @@ import java.lang.reflect.Modifier;
 import java.util.Locale;
 
 import agency.highlysuspect.i4.ignos.Id;
+import agency.highlysuspect.i4.ignos.Latch;
+import agency.highlysuspect.i4.ignos.RegType;
 import org.jetbrains.annotations.Nullable;
 
 public class GenSupport {
@@ -40,28 +42,37 @@ public class GenSupport {
 		return null;
 	}
 
-	public static @Nullable Id reflectivelyFindId(Gen what) {
+	@SuppressWarnings("unchecked")
+	public static <T, X extends T> Latch<X> reflectivelyFindLatch(RegType<T> reg, Gen what) {
 		for(Field field : what.getClass().getFields()) {
-			if(!field.getName().equals("ID")) continue;
+
+			String name = field.getName().toLowerCase(Locale.ROOT);
+
+			if(!name.equals("id") && !name.endsWith("latch") && !name.startsWith("latch")) continue;
 			if(Modifier.isAbstract(field.getDeclaringClass().getModifiers())) continue;
 			if(Modifier.isTransient(field.getModifiers())) continue;
 
-			if(field.getType() == Id.class) {
-				try {
-					return (Id) field.get(what);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			}
+			try {
 
-			if(field.getType() == String.class) {
-				try {
-					return Id.parse((String) field.get(what));
-				} catch (Exception e) {
-					throw new RuntimeException(e);
+				if(field.getType() == Latch.class) {
+					Latch<?> hmm = (Latch<?>) field.get(null);
+					if(hmm.regType == reg) return (Latch<X>) hmm;
+					else continue;
 				}
+
+				if(field.getType() == Id.class) {
+					return Latch.open(reg, (Id) field.get(what));
+				}
+
+				if(field.getType() == String.class) {
+					return Latch.open(reg, Id.parse((String) field.get(what)));
+				}
+
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		}
-		return null;
+
+		throw new IllegalArgumentException("Need an 'id' or 'latch' field");
 	}
 }
