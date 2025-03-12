@@ -8,6 +8,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
+/**
+ * BuiltInRegistries is a classloading bomb pre-bootstrap so have this janky thing instead
+ */
 public class RegType<T> {
 	public static final RegType<Block> BLOCKS = new RegType<>();
 	public static final RegType<Item> ITEMS = new RegType<>();
