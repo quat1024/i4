@@ -1,6 +1,7 @@
 package agency.highlysuspect.i4.ignos;
 
 import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -15,12 +16,14 @@ public class RegType<T> {
 	public static final RegType<Block> BLOCKS = new RegType<>();
 	public static final RegType<Item> ITEMS = new RegType<>();
 	public static final RegType<BlockEntityType<?>> BLOCK_ENTITY_TYPES = new RegType<>();
+	public static final RegType<DataComponentType<?>> DATA_COMPONENT_TYPES = new RegType<>();
 
 	@SuppressWarnings("unchecked")
 	public Registry<T> toRegistry() {
 		if(this == BLOCKS) return (Registry<T>) BuiltInRegistries.BLOCK;
 		else if(this == ITEMS) return (Registry<T>) BuiltInRegistries.ITEM;
 		else if(this == BLOCK_ENTITY_TYPES) return (Registry<T>) BuiltInRegistries.BLOCK_ENTITY_TYPE;
+		else if(this == DATA_COMPONENT_TYPES) return (Registry<T>) BuiltInRegistries.DATA_COMPONENT_TYPE;
 		else throw new IllegalArgumentException("unknown Regs " + this);
 	}
 
@@ -29,6 +32,7 @@ public class RegType<T> {
 		if(this == BLOCKS) return (ResourceKey<Registry<T>>) (Object) Registries.BLOCK;
 		else if(this == ITEMS) return (ResourceKey<Registry<T>>) (Object) Registries.ITEM;
 		else if(this == BLOCK_ENTITY_TYPES) return (ResourceKey<Registry<T>>) (Object) Registries.BLOCK_ENTITY_TYPE;
+		else if(this == DATA_COMPONENT_TYPES) return (ResourceKey<Registry<T>>) (Object) Registries.DATA_COMPONENT_TYPE;
 		else throw new IllegalArgumentException("unknown Regs " + this);
 	}
 
@@ -37,6 +41,7 @@ public class RegType<T> {
 		if(this == BLOCKS) return "blocks";
 		else if(this == ITEMS) return "items";
 		else if(this == BLOCK_ENTITY_TYPES) return "block entity types";
+		else if(this == DATA_COMPONENT_TYPES) return "data component types";
 		else return "unknown!";
 	}
 }

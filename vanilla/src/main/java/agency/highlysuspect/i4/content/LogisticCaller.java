@@ -1,5 +1,7 @@
 package agency.highlysuspect.i4.content;
 
+import agency.highlysuspect.i4.api.LogisticLinkable;
+import agency.highlysuspect.i4.api.LogisticLinkableRoot;
 import agency.highlysuspect.i4.dgen.gen.FindGen;
 import agency.highlysuspect.i4.dgen.gen.GenContext;
 import agency.highlysuspect.i4.dgen.gen.RtContext;
@@ -25,13 +27,18 @@ public class LogisticCaller extends Block implements EntityBlock {
 		return new Ent(pos, state);
 	}
 
-	public static class Ent extends BlockEntity {
+	public static class Ent extends BlockEntity implements LogisticLinkable {
 		public Ent(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state) {
 			super(blockEntityType, pos, state);
 		}
 
 		public Ent(BlockPos pos, BlockState state) {
 			super(Latches.LOGISTIC_CALLER_ENT.get(), pos, state);
+		}
+
+		@Override
+		public boolean wantsToConnect(LogisticLinkableRoot root) {
+			return true;
 		}
 	}
 
