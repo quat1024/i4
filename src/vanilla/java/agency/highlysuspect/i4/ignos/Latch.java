@@ -4,6 +4,14 @@ import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * a latch is like a ResourceKey, pairing a registry with an id inside that registry,
+ * but additionally it might hold an instance of the corresponding object.
+ * we say a latch is "open" when it doesn't have the object yet, and "shut" when it does.
+ * the only thing you can do to an open latch is shut it with a registered object.
+ *
+ * tbh it's like Holder but not mojang controlled...
+ */
 public class Latch<T> {
 	private Latch(RegType<? super T> regType, Id id, @Nullable T thing) {
 		this.regType = regType;
@@ -64,7 +72,7 @@ public class Latch<T> {
 
 	@Override
 	public String toString() {
-		return regType.toString() + "->" + id + " " + (thing == null ? "(unbound)" : thing);
+		return regType.toString() + "->" + id + " " + (thing == null ? "(open)" : thing);
 	}
 
 	@Override

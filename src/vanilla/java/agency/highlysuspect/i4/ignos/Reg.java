@@ -21,7 +21,7 @@ public abstract class Reg<T> {
 	protected final Map<Id, List<Latch<?>>> openLatches = new HashMap<>();
 	
 	/**
-	 * promise to construct "sup" and register it under "latch" at some later time
+	 * at some later time, construct "sup" and register it under "latch"
 	 */
 	public abstract <X extends T> Latch<X> defer(Latch<X> latch, Supplier<X> sup);
 	

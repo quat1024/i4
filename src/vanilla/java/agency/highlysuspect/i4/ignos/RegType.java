@@ -24,7 +24,7 @@ public class RegType<T> {
 		else if(this == ITEMS) return (Registry<T>) BuiltInRegistries.ITEM;
 		else if(this == BLOCK_ENTITY_TYPES) return (Registry<T>) BuiltInRegistries.BLOCK_ENTITY_TYPE;
 		else if(this == DATA_COMPONENT_TYPES) return (Registry<T>) BuiltInRegistries.DATA_COMPONENT_TYPE;
-		else throw new IllegalArgumentException("unknown Regs " + this);
+		else throw new IllegalArgumentException("unknown RegType " + this);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -33,7 +33,7 @@ public class RegType<T> {
 		else if(this == ITEMS) return (ResourceKey<Registry<T>>) (Object) Registries.ITEM;
 		else if(this == BLOCK_ENTITY_TYPES) return (ResourceKey<Registry<T>>) (Object) Registries.BLOCK_ENTITY_TYPE;
 		else if(this == DATA_COMPONENT_TYPES) return (ResourceKey<Registry<T>>) (Object) Registries.DATA_COMPONENT_TYPE;
-		else throw new IllegalArgumentException("unknown Regs " + this);
+		else throw new IllegalArgumentException("unknown RegType " + this);
 	}
 
 	@Override

@@ -46,7 +46,7 @@ public abstract class I4 implements RtContext {
 		FacetHolder everyFacet = new FacetHolder().merge(gens);
 
 		//handle facets
-		AddBlockEntity.handle(everyFacet, this); //has to come before Register.handle
+		AddBlockEntity.handle(everyFacet, this); //has to come before Register, since it works by adding Register facets
 		Register.handle(everyFacet, this);
 	}
 	

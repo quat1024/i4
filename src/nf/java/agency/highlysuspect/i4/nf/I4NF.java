@@ -35,6 +35,7 @@ public class I4NF extends I4 {
 		return reg;
 	}
 	
+	//annoyingly loader-specific. NF access-widens this
 	@Override
 	public <T extends BlockEntity> BlockEntityType<T> makeBlockEntityType(BiFunction<BlockPos, BlockState, T> maker, Block... blocks) {
 		return new BlockEntityType<>(maker::apply, Set.of(blocks), null);
