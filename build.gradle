@@ -1,65 +1,92 @@
 plugins {
-	id 'dev.architectury.loom' version '1.10-SNAPSHOT' apply false //1.10.430
-	id 'architectury-plugin' version '3.4-SNAPSHOT' //3.4.161
-	id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
+	id "net.neoforged.moddev" version "2.0.82" // https://projects.neoforged.net/neoforged/ModDevGradle
 }
 
-architectury {
-	minecraft = "1.21.1"
-	compileOnly()
+group = "agency.highlysuspect.i4"
+version = "0.0.1"
+base {
+	archivesName = "i4-neoforge"
 }
 
-allprojects {
-	group = "agency.highlysuspect.i4"
-	version = rootProject.version
+sourceSets {
+	generated
+	
+	vanilla
+	
+	nf {
+		compileClasspath += sourceSets.vanilla.compileClasspath
+		runtimeClasspath += sourceSets.vanilla.runtimeClasspath
+		//resources.srcDirs += [sourceSets.vanilla.resources]
+		//resources.srcDirs += [sourceSets.generated.resources]
+	}
+	
+	//sigh
+//	main {
+//		compileClasspath += sourceSets.nf.compileClasspath
+//		runtimeClasspath += sourceSets.nf.runtimeClasspath
+//		compileClasspath += sourceSets.vanilla.compileClasspath
+//		runtimeClasspath += sourceSets.vanilla.runtimeClasspath
+//	}
 }
 
-subprojects {
-	apply plugin: 'com.github.johnrengelman.shadow'
-	apply plugin: 'dev.architectury.loom'
-	apply plugin: 'architectury-plugin'
-	apply plugin: 'maven-publish'
+neoForge {
+	version "21.1.169" // https://projects.neoforged.net/neoforged/neoforge
 	
-	java.toolchain.languageVersion = JavaLanguageVersion.of(21)
-	java.withSourcesJar()
-	java.sourceCompatibility = java.targetCompatibility = JavaVersion.VERSION_21
-	tasks.withType(JavaCompile).configureEach {
-		it.options.encoding = "UTF-8"
-		it.options.release = 21
-	}
+	addModdingDependenciesTo sourceSets.vanilla
+	addModdingDependenciesTo sourceSets.nf
 	
-	base {
-		archivesName = "i4-$project.name" //eg. "i4-fabric"
-	}
-	
-	dependencies {
-		minecraft "net.minecraft:minecraft:1.21.1"
-		mappings loom.officialMojangMappings()
-	}
-	
-	processResources {
-		inputs.property 'version', project.version
-		
-		filesMatching(['fabric.mod.json', 'META-INF/neoforge.mods.toml']) {
-			expand version: project.version
+	runs {
+		client {
+			client()
+		}
+		server {
+			server()
 		}
 	}
 	
-	// Configure Maven publishing.
-//	publishing {
-//		publications {
-//			mavenJava(MavenPublication) {
-//				artifactId = base.archivesName.get()
-//				from components.java
-//			}
-//		}
-//
-//		// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-//		repositories {
-//			// Add repositories to publish to here.
-//			// Notice: This block does NOT have the same function as the block in the top level.
-//			// The repositories here will be used for publishing your artifact, not for
-//			// retrieving dependencies.
-//		}
-//	}
+	mods {
+		i4 {
+			sourceSet sourceSets.generated
+			sourceSet sourceSets.nf
+			sourceSet sourceSets.vanilla
+		}
+	}
+}
+
+dependencies {
+	nfImplementation sourceSets.vanilla.output
+}
+
+jar {
+	from sourceSets.generated.output
+	from sourceSets.nf.output
+	from sourceSets.vanilla.output
+}
+
+processNfResources {
+	inputs.property 'version', project.version
+	filesMatching(["META-INF/neoforge.mods.toml"]) {
+		expand version: project.version
+	}
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.withSourcesJar()
+java.sourceCompatibility = java.targetCompatibility = JavaVersion.VERSION_21
+tasks.withType(JavaCompile).configureEach {
+	it.options.encoding = "UTF-8"
+	it.options.release = 21
+}
+
+tasks.register("dgen2", JavaExec) {
+	group "dgen"
+	
+	classpath = sourceSets.vanilla.runtimeClasspath
+	mainClass = "agency.highlysuspect.i4.dgen.DgenEntrypoint"
+	args = [
+		//arg 0: generated sources dir
+		sourceSets.generated.getResources().srcDirs.iterator().next().toString(),
+		//arg 1: my own classes dir (used for class discovery bullshit)
+		sourceSets.vanilla.output.classesDirs.iterator().next().toString(),
+	]
 }
