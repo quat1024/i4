@@ -3,7 +3,7 @@ package agency.highlysuspect.i4.nf;
 import agency.highlysuspect.i4.I4;
 import agency.highlysuspect.i4.ignos.Reg;
 import agency.highlysuspect.i4.ignos.RegType;
-import agency.highlysuspect.i4.nf.ignos.DeferredReg;
+import agency.highlysuspect.i4.nf.ignos.NfReg;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -29,8 +29,10 @@ public class I4NF extends I4 {
 	}
 	
 	@Override
-	public <T> Reg<T> createReg(I4 i4, RegType<T> regType) {
-		return new DeferredReg<>(i4, regType.toRegistry(), modBus);
+	public <T> Reg<T> createRegHelper(I4 i4, RegType<T> regType) {
+		NfReg<T> reg = new NfReg<>(i4, regType.toRegistry());
+		modBus.addListener(reg::doRegister);
+		return reg;
 	}
 	
 	@Override

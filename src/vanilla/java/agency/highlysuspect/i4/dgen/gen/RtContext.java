@@ -1,9 +1,8 @@
 package agency.highlysuspect.i4.dgen.gen;
 
-import java.util.function.BiFunction;
-import java.util.function.Supplier;
-
 import agency.highlysuspect.i4.ignos.Latch;
+import agency.highlysuspect.i4.ignos.Reg;
+import agency.highlysuspect.i4.ignos.RegType;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
@@ -14,8 +13,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
+
 public interface RtContext {
+	<T> Reg<T> getOrCreateRegHelper(RegType<T> type);
 	<T, X extends T> Latch<X> register(Latch<X> latch, Supplier<X> s);
+	<T, X extends T> Latch<X> addLatch(Latch<X> latch);
 
 	<T extends BlockEntity> BlockEntityType<T> makeBlockEntityType(BiFunction<BlockPos, BlockState, T> maker, Block... blocks);
 

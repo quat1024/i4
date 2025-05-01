@@ -1,10 +1,5 @@
 package agency.highlysuspect.i4;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Supplier;
-
 import agency.highlysuspect.i4.dgen.facet.FacetHolder;
 import agency.highlysuspect.i4.dgen.facets.AddBlockEntity;
 import agency.highlysuspect.i4.dgen.facets.Register;
@@ -18,13 +13,18 @@ import agency.highlysuspect.i4.ignos.RegType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
 public abstract class I4 implements RtContext {
 	public static final String MODID = "i4";
 	public static final Logger LOG = LoggerFactory.getLogger("i4");
 
 	public static I4 INSTANCE;
 
-	protected Map<RegType<?>, Reg<?>> defers = new HashMap<>();
+	protected Map<RegType<?>, Reg<?>> regHelpers = new HashMap<>();
 
 	public I4() {
 		INSTANCE = this;
@@ -49,13 +49,22 @@ public abstract class I4 implements RtContext {
 		AddBlockEntity.handle(everyFacet, this); //has to come before Register.handle
 		Register.handle(everyFacet, this);
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T, X extends T> Latch<X> register(Latch<X> latch, Supplier<X> s) {
-		Reg<T> reg = (Reg<T>) defers.computeIfAbsent(latch.regType, __ -> createReg(this, latch.regType));
-		return reg.defer(latch, s);
+	public <T> Reg<T> getOrCreateRegHelper(RegType<T> type) {
+		return (Reg<T>) regHelpers.computeIfAbsent(type, __ -> createRegHelper(this, type));
 	}
-
-	public abstract <T> Reg<T> createReg(I4 i4, RegType<T> regType);
+	
+	@Override
+	public <T, X extends T> Latch<X> register(Latch<X> latch, Supplier<X> s) {
+		return getOrCreateRegHelper(latch.regType).defer(latch, s);
+	}
+	
+	@Override
+	public <T, X extends T> Latch<X> addLatch(Latch<X> latch) {
+		return getOrCreateRegHelper(latch.regType).addLatch(latch);
+	}
+	
+	public abstract <T> Reg<T> createRegHelper(I4 i4, RegType<T> regType);
 }
